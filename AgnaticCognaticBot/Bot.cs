@@ -1,54 +1,60 @@
-﻿using Discord;
+﻿using AgnaticCognaticBot.Commands;
+using AgnaticCognaticBot.Services;
+using Discord;
 using Discord.WebSocket;
 
 namespace AgnaticCognaticBot;
 
 public class Bot
 {
-    private readonly DiscordSocketClient _client;
-    private readonly string _token;
+    public readonly DiscordSocketClient Client;
+    
+    public readonly ServiceHandler ServiceHandler;
+    public readonly CommandHandler CommandHandler;
 
-    private bool running = true;
+    private readonly string _token;
+    private bool _running;
 
     public Bot(string token)
     {
-        running = true;
+        _running = true;
         _token = token;
         
-        _client = new DiscordSocketClient(new DiscordSocketConfig()
+        Client = new DiscordSocketClient(new DiscordSocketConfig()
         {
             LogLevel = LogSeverity.Info,
             MessageCacheSize = 50
         });
-        _client.Log += Log;
+        Client.Log += Log;
+
+        ServiceHandler = new ServiceHandler(this);
+        CommandHandler = new CommandHandler(this);
     }
 
     public async Task StartClient()
     {
-        await _client.LoginAsync(TokenType.Bot, _token);
-        await _client.StartAsync();
+        await CommandHandler.InitCommands();
+        
+        await Client.LoginAsync(TokenType.Bot, _token);
+        await Client.StartAsync();
 
         await Update();
     }
 
     private async Task Update()
     {
-        while (running)
+        while (_running)
         {
             // Do stuff each "frame"
         }
 
-        await StopClientAsync();
+        await Client.LogoutAsync();
+        await Client.StopAsync();
     }
 
     public void StopClient()
     {
-        running = false;
-    }
-
-    private async Task StopClientAsync()
-    {
-        await _client.StopAsync();
+        _running = false;
     }
 
     private Task Log(LogMessage logMessage)
