@@ -34,7 +34,7 @@ public class Bot
         Client.Log += Log;
 
         ServiceHandler = new ServiceHandler(this);
-        CommandHandler = new CommandHandler(this);
+        CommandHandler = new CommandHandler(this, ">>");
     }
 
     public async Task StartClient()
