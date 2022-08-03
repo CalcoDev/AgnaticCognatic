@@ -53,7 +53,12 @@ public class Bot
         {
             // Do stuff each "frame"
         }
-        
+
+        await Disconnect();
+    }
+    
+    private async Task Disconnect()
+    {
         _logger.Info("Shutting down logger...");
         LogManager.Shutdown();
         
