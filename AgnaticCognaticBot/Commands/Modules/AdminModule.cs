@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
 using Discord.Commands;
-using Discord.WebSocket;
 
-namespace AgnaticCognaticBot.Commands;
+namespace AgnaticCognaticBot.Commands.Modules;
 
 public class AdminModule : ModuleBase<SocketCommandContext>
 {
