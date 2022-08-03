@@ -12,6 +12,13 @@
       <PackageReference Include="Discord.Net.Core" Version="3.7.2" />
       <PackageReference Include="Discord.Net.Interactions" Version="3.7.2" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+      <PackageReference Include="NLog" Version="5.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="nlog.config.xml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
