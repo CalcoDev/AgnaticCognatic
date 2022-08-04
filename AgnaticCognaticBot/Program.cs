@@ -2,8 +2,6 @@
 
 public static class Program
 {
-    // private const string Token = ;
-    // Read Token from environment
     private static readonly string? Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
 
     public static Task Main(string[] args)
