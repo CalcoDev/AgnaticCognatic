@@ -53,7 +53,7 @@ public class InteractionHandler
         else
             await InteractionService.RegisterCommandsGloballyAsync(true);
 
-        _logger.Info("Initialised interactions {0}.", isDebug ? $"on guild with ID, {TestGuildId}" : "globally");
+        _logger.Info("Initialised interactions {0}.", isDebug ? $"on guild with ID: {TestGuildId}" : "globally");
     }
 
     private async Task HandleInteraction(SocketInteraction interaction)
