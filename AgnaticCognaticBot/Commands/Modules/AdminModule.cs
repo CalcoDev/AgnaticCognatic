@@ -30,7 +30,6 @@ public class AdminModule : ModuleBase<SocketCommandContext>
     {
         var guild = new Guild()
         {
-            CreatedAt = DateTime.Now,
             DiscordUid = Bot.TestGuildId
         };
 
@@ -44,5 +43,26 @@ public class AdminModule : ModuleBase<SocketCommandContext>
         }
 
         await Context.Channel.SendMessageAsync("Added thing to database. (Hopefully ....)");
+    }
+
+    [Command("registerSelf", RunMode = RunMode.Async)]
+    [Description("Register yourself as an admin.")]
+    public async Task RegisterSelf()
+    {
+        var user = new User()
+        {
+            Rank = 2,
+            AdminGuilds = new[] { (decimal)Bot.TestGuildId },
+            DiscordUid = Context.User.Id
+        };
+        
+        try
+        {
+            await _bot.DatabaseClient.Users.Insert(user);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Error inserting user into database: " + e.Message);
+        }
     }
 }
