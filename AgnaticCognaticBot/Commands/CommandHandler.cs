@@ -123,8 +123,16 @@ public class CommandHandler
             {
                 if (method.Name == "get_Context")
                     break;
+                
+                var attribData = method.GetCustomAttributesData();
+                foreach (var data in attribData)
+                {
+                    if (data.AttributeType != typeof(CommandAttribute))
+                        continue;
                     
-                CommandToModule.Add(method.Name.ToLower(), type.Name.ToLower());
+                    var commandName = (string) data.ConstructorArguments[0].Value!;
+                    CommandToModule.Add(commandName.ToLower(), type.Name.ToLower());
+                }
             }
         }
     }
