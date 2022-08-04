@@ -1,4 +1,5 @@
 ﻿using AgnaticCognaticBot.Commands.Modules;
+using AgnaticCognaticBot.Helpers;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -31,6 +32,8 @@ public class CommandHandler
             IgnoreExtraArgs = true
         });
 
+        CommandService.Log += message => Logging.Log(message, _logger);
+
         Prefix = ">>>";
     }
     
@@ -41,10 +44,7 @@ public class CommandHandler
 
     private async Task HandleCommandAsync(SocketMessage socketMessage)
     {
-        // Ignore messages from bots
-        var message = socketMessage as SocketUserMessage;
-        
-        if (message == null)
+        if (socketMessage is not SocketUserMessage message)
             return;
 
         if (message.Author.Id == _bot.Client.CurrentUser.Id || message.Author.IsBot)
@@ -71,5 +71,7 @@ public class CommandHandler
         await CommandService.AddModuleAsync<AdminModule>(_serviceProvider);
         
         _bot.Client.MessageReceived += HandleCommandAsync;
+        
+        _logger.Info("Initialised commands.");
     }
 }
