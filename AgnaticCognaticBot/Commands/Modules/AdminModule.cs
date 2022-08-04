@@ -18,7 +18,7 @@ public class AdminModule : ModuleBase<SocketCommandContext>
 
     [Command("stop", RunMode = RunMode.Async)]
     [Description("Stops the bot")]
-    public async Task StopBot()
+    public async Task Stop()
     {
         await Context.Channel.SendMessageAsync("Shutting down...");
         _bot.StopClient();

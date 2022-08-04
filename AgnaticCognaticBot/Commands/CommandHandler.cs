@@ -5,6 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using NLog;
+using Postgrest;
 
 namespace AgnaticCognaticBot.Commands;
 
@@ -60,14 +61,27 @@ public class CommandHandler
         string command = message.Content[2..];
         if (CommandToModule.TryGetValue(command.ToLower(), out var moduleName))
         {
-            // TODO(CALCO): finish this. (Get user form database and check permissions.
-            var user = await _bot.DatabaseClient.Users.Select($"id = {message.Author.Id}").Single();
-            
-            _logger.Debug(user.Rank);
-            
-            // if (moduleName == "AdminModule" )
-            
+            int rank = 0;
+            try
+            {
+                var user = await _bot.DatabaseClient.Users
+                    .Filter("discord_uid", Constants.Operator.Equals, "383567751819558932")
+                    .Single();
+                
+                rank = user.Rank;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error getting user rank.");
+            }
+
             var context = new SocketCommandContext(_bot.Client, message);
+            if (moduleName == "adminmodule" && rank != 2)
+            {
+                await context.Channel.SendMessageAsync("You do not have permission to use this command.");
+                return;
+            }
+            
             var result = await CommandService.ExecuteAsync(context, pos, _serviceProvider);
 
             _logger.Info("Received command: {0}", command);
