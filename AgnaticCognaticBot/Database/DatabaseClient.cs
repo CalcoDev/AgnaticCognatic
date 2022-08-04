@@ -9,6 +9,7 @@ public class DatabaseClient
     public Client Client { get; private set; }
     
     public SupabaseTable<Guild> Guilds { get; private set; }
+    public SupabaseTable<User> Users { get; private set; }
 
     private readonly string? _url = Environment.GetEnvironmentVariable("AGNATIC_COGNATIC_SUPABASE_URL");
     private readonly string? _key = Environment.GetEnvironmentVariable("AGNATIC_COGNATIC_SUPABASE_KEY");
@@ -44,6 +45,7 @@ public class DatabaseClient
             Client = Client.Instance;
 
             Guilds = Client.From<Guild>();
+            Users = Client.From<User>();
         }
         catch (Exception e)
         {
