@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using AgnaticCognaticBot.Database.Models;
 using Discord.Commands;
 
 namespace AgnaticCognaticBot.Commands.Modules;

@@ -11,6 +11,8 @@ namespace AgnaticCognaticBot;
 
 public class Bot
 {
+    public const ulong TestGuildId = 1000484275818352660;
+    
     public readonly DiscordSocketClient Client;
     public readonly DatabaseClient DatabaseClient;
     

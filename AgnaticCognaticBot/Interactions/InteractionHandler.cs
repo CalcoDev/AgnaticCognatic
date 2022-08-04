@@ -18,8 +18,6 @@ public class InteractionHandler
     private readonly Bot _bot;
     private readonly IServiceProvider _serviceProvider;
 
-    private const ulong TestGuildId = 1000484275818352660;
-
     public InteractionHandler(Bot bot)
     {
         _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -49,11 +47,11 @@ public class InteractionHandler
         bool isDebug = Debugging.IsDebugMode();
         
         if (isDebug)
-            await InteractionService.RegisterCommandsToGuildAsync(TestGuildId, true);
+            await InteractionService.RegisterCommandsToGuildAsync(Bot.TestGuildId, true);
         else
             await InteractionService.RegisterCommandsGloballyAsync(true);
 
-        _logger.Info("Initialised interactions {0}.", isDebug ? $"on guild with ID: {TestGuildId}" : "globally");
+        _logger.Info("Initialised interactions {0}.", isDebug ? $"on guild with ID: {Bot.TestGuildId}" : "globally");
     }
 
     private async Task HandleInteraction(SocketInteraction interaction)
