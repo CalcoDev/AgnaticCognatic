@@ -1,4 +1,5 @@
 ﻿using AgnaticCognaticBot.Commands;
+using AgnaticCognaticBot.Interactions;
 using AgnaticCognaticBot.Services;
 using Discord;
 using Discord.WebSocket;
@@ -12,6 +13,9 @@ public class Bot
     
     public readonly ServiceHandler ServiceHandler;
     public readonly CommandHandler CommandHandler;
+    // public readonly InteractionHandler InteractionHandler;
+
+    public const int RefreshInterval = 1000;
 
     private readonly Logger _logger;
     
@@ -35,23 +39,29 @@ public class Bot
 
         ServiceHandler = new ServiceHandler(this);
         CommandHandler = new CommandHandler(this, ">>");
+        // InteractionHandler = new InteractionHandler(this);
     }
 
     public async Task StartClient()
     {
         await CommandHandler.InitCommands();
+        // await InteractionHandler.InitInteractions();
         
         await Client.LoginAsync(TokenType.Bot, _token);
         await Client.StartAsync();
-
+        
         await Update();
+
+        await Task.Run(Update);
+
+        // await Task.Delay(-1);
     }
 
     private async Task Update()
     {
         while (_running)
         {
-            // Do stuff each "frame"
+            await Task.Delay(RefreshInterval);
         }
 
         await Disconnect();
