@@ -1,4 +1,5 @@
 ﻿using AgnaticCognaticBot.Commands;
+using AgnaticCognaticBot.Database;
 using AgnaticCognaticBot.Helpers;
 using AgnaticCognaticBot.Interactions;
 using AgnaticCognaticBot.Services;
@@ -11,6 +12,7 @@ namespace AgnaticCognaticBot;
 public class Bot
 {
     public readonly DiscordSocketClient Client;
+    public readonly DatabaseClient DatabaseClient;
     
     public readonly ServiceHandler ServiceHandler;
     public readonly CommandHandler CommandHandler;
@@ -30,7 +32,9 @@ public class Bot
         
         _running = true;
         _token = token;
-        
+
+        DatabaseClient = new DatabaseClient();
+
         Client = new DiscordSocketClient(new DiscordSocketConfig()
         {
             LogLevel = LogSeverity.Info,
@@ -58,6 +62,7 @@ public class Bot
     
     private async Task ClientReady()
     {
+        await DatabaseClient.InitClient();
         await CommandHandler.InitCommands();
         await InteractionHandler.InitInteractions();
         
