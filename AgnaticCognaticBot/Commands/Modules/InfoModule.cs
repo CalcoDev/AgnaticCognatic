@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using Discord;
 using Discord.Commands;
 using RunMode = Discord.Commands.RunMode;
@@ -18,7 +19,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
     [Command("info", RunMode = RunMode.Async)]
     [Alias("help", "commands")]
-    [Summary("Displays info about the bot")]
+    [Description("Displays info about the bot")]
     public async Task Info()
     {
         var embed = new EmbedBuilder();
