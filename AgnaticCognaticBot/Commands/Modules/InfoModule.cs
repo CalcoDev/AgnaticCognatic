@@ -1,14 +1,13 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using Discord;
 using Discord.Commands;
 using RunMode = Discord.Commands.RunMode;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
-public class InfoModule : CommandModuleBase
+public class InfoModule : ModuleBase<SocketCommandContext>
 {
-    public override int MinimumRequiredRank { get; } = 0;
-    
     private readonly CommandHandler _commandHandler;
     
     private readonly Color _embedColour = new(57, 147, 237);
@@ -20,7 +19,7 @@ public class InfoModule : CommandModuleBase
 
     [Command("info", RunMode = RunMode.Async)]
     [Alias("help", "commands")]
-    [Summary("Displays info about the bot")]
+    [Description("Displays info about the bot")]
     public async Task Info()
     {
         var embed = new EmbedBuilder();

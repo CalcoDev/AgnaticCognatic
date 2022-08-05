@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using AgnaticCognaticBot.Commands.Modules;
 using AgnaticCognaticBot.Helpers;
 using Discord;
@@ -19,6 +20,7 @@ public class CommandHandler
     private readonly Logger _logger;
     
     public readonly Dictionary<string, string> CommandToModule = new Dictionary<string, string>();
+    public readonly Dictionary<string, int> ModuleToRank = new Dictionary<string, int>();
 
     public string Prefix { get; set; }
 
@@ -111,28 +113,54 @@ public class CommandHandler
     
     private void BuildCommandsToModules()
     {
-        var assembly = Assembly.GetAssembly(typeof(InfoModule));
+        var assembly = Assembly.GetAssembly(typeof(CommandHandler));
         if (assembly == null) return;
-        
+
+        var moduleBaseType = typeof(ModuleBase<SocketCommandContext>);
         var types = assembly.GetTypes()
-            .Where(type => type.IsClass && type.IsSubclassOf(typeof(ModuleBase<SocketCommandContext>)));
-            
+            .Where(type => type.IsClass && type.IsSubclassOf(moduleBaseType));
+        
+        _logger.Info("Searching for command modules...");
         foreach (var type in types)
         {
+            var fieldInfo = type.GetProperty("MinimumRequiredRank");
+            int minimumRequiredRank = 0;
+            if (fieldInfo == null)
+                _logger.Warn("Could not find rank field in module {0}. Assuming it to be 0 - Default.", type.Name);
+            else
+                minimumRequiredRank = (int)(fieldInfo.GetValue(null) ?? 0);
+            
+            ModuleToRank.Add(type.Name, minimumRequiredRank);
+            _logger.Info("Found module {0} with minimum required rank {1}, and the following commands:.", type.Name, minimumRequiredRank);
+
             foreach (var method in type.GetMethods())
             {
                 if (method.Name == "get_Context")
                     break;
                 
                 var attribData = method.GetCustomAttributesData();
+
+                var commandAttribType = typeof(CommandAttribute);
+                var commandDescType = typeof(DescriptionAttribute);
+
+                string commandName = "";
+                string commandDesc = "No description found.";
+                bool shouldLog = false;
                 foreach (var data in attribData)
                 {
-                    if (data.AttributeType != typeof(CommandAttribute))
-                        continue;
-                    
-                    var commandName = (string) data.ConstructorArguments[0].Value!;
-                    CommandToModule.Add(commandName.ToLower(), type.Name.ToLower());
+                    if (data.AttributeType == commandAttribType)
+                    {
+                        commandName = (string)data.ConstructorArguments[0].Value!; // Name is a required param. 
+                        CommandToModule.Add(commandName.ToLower(), type.Name.ToLower());
+                        
+                        shouldLog = true;
+                    }
+                    else if (data.AttributeType == commandDescType)
+                        commandDesc = (string)data.ConstructorArguments[0].Value!; // Description is a required param.
                 }
+                
+                if (shouldLog)
+                    _logger.Info("{0}: {1}", commandName, commandDesc);
             }
         }
     }

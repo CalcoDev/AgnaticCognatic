@@ -5,9 +5,9 @@ using NLog;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
-public class AdminModule : CommandModuleBase
+public class AdminModule : ModuleBase<SocketCommandContext>
 {
-    public override int MinimumRequiredRank { get; } = 2;
+    public static int MinimumRequiredRank { get; } = 2;
     
     private readonly Bot _bot;
 
