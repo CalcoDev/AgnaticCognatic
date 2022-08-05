@@ -78,12 +78,13 @@ public class CommandHandler
             }
 
             var context = new SocketCommandContext(_bot.Client, message);
-            if (moduleName == "adminmodule" && rank != 2)
+            var requiredRank = ModuleToRank[moduleName];
+            if (rank < requiredRank)
             {
                 await context.Channel.SendMessageAsync("You do not have permission to use this command.");
                 return;
             }
-            
+
             var result = await CommandService.ExecuteAsync(context, pos, _serviceProvider);
 
             _logger.Info("Received command: {0}", command);
@@ -130,7 +131,7 @@ public class CommandHandler
             else
                 minimumRequiredRank = (int)(fieldInfo.GetValue(null) ?? 0);
             
-            ModuleToRank.Add(type.Name, minimumRequiredRank);
+            ModuleToRank.Add(type.Name.ToLower(), minimumRequiredRank);
             _logger.Info("Found module {0} with minimum required rank {1}, and the following commands:.", type.Name, minimumRequiredRank);
 
             foreach (var method in type.GetMethods())
