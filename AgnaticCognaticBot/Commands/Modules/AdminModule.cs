@@ -5,8 +5,10 @@ using NLog;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
-public class AdminModule : ModuleBase<SocketCommandContext>
+public class AdminModule : CommandModuleBase
 {
+    public override int MinimumRequiredRank { get; } = 2;
+    
     private readonly Bot _bot;
 
     private readonly Logger _logger = NLog.LogManager.GetCurrentClassLogger();

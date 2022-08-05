@@ -108,7 +108,7 @@ public class CommandHandler
         
         _logger.Info("Initialised commands.");
     }
-
+    
     private void BuildCommandsToModules()
     {
         var assembly = Assembly.GetAssembly(typeof(InfoModule));

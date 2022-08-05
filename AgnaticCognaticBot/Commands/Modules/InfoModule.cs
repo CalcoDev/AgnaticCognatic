@@ -5,8 +5,10 @@ using RunMode = Discord.Commands.RunMode;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
-public class InfoModule : ModuleBase<SocketCommandContext>
+public class InfoModule : CommandModuleBase
 {
+    public override int MinimumRequiredRank { get; } = 0;
+    
     private readonly CommandHandler _commandHandler;
     
     private readonly Color _embedColour = new(57, 147, 237);
