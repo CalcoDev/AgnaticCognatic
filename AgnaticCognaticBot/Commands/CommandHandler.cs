@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reflection;
 using AgnaticCognaticBot.Commands.Modules;
 using AgnaticCognaticBot.Helpers;
@@ -142,11 +143,14 @@ public class CommandHandler
                 var attribData = method.GetCustomAttributesData();
 
                 var commandAttribType = typeof(CommandAttribute);
-                var commandDescType = typeof(DescriptionAttribute);
+                var commandDescAttribType = typeof(DescriptionAttribute);
+                var aliasAttribType = typeof(AliasAttribute);
 
                 string commandName = "";
                 string commandDesc = "No description found.";
+                string possibleAliases = "";
                 bool shouldLog = false;
+                // TODO(calco): Should probably do some checks to see if the method is an actual command.
                 foreach (var data in attribData)
                 {
                     if (data.AttributeType == commandAttribType)
@@ -156,12 +160,29 @@ public class CommandHandler
                         
                         shouldLog = true;
                     }
-                    else if (data.AttributeType == commandDescType)
+                    else if (data.AttributeType == commandDescAttribType)
                         commandDesc = (string)data.ConstructorArguments[0].Value!; // Description is a required param.
+                    else if (data.AttributeType == aliasAttribType)
+                    {
+                        if (data.ConstructorArguments[0].Value! is not ReadOnlyCollection<CustomAttributeTypedArgument> aliases) continue;
+
+                        foreach (var alias in aliases)
+                        {
+                            var actualAliasName = ((string)alias.Value!).ToLower();
+
+                            possibleAliases += $"{actualAliasName} / ";
+                            
+                            CommandToModule.Add(actualAliasName, type.Name.ToLower());
+                        }
+                    }
                 }
-                
+
                 if (shouldLog)
-                    _logger.Info("{0}: {1}", commandName, commandDesc);
+                {
+                    _logger.Info(
+                        $"{commandName} {(possibleAliases.Length > 0 ? $"/ {possibleAliases[..^2]}" : "")}- {commandDesc}"
+                    );
+                }
             }
         }
     }
