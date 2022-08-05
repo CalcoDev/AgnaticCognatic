@@ -7,6 +7,8 @@ namespace AgnaticCognaticBot.Commands.Modules;
 
 public class AdminModule : ModuleBase<SocketCommandContext>
 {
+    public static int MinimumRequiredRank { get; } = 2;
+    
     private readonly Bot _bot;
 
     private readonly Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -18,7 +20,7 @@ public class AdminModule : ModuleBase<SocketCommandContext>
 
     [Command("stop", RunMode = RunMode.Async)]
     [Description("Stops the bot")]
-    public async Task StopBot()
+    public async Task Stop()
     {
         await Context.Channel.SendMessageAsync("Shutting down...");
         _bot.StopClient();

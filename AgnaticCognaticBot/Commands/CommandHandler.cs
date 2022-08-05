@@ -1,10 +1,12 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using AgnaticCognaticBot.Commands.Modules;
 using AgnaticCognaticBot.Helpers;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using NLog;
+using Postgrest;
 
 namespace AgnaticCognaticBot.Commands;
 
@@ -18,6 +20,7 @@ public class CommandHandler
     private readonly Logger _logger;
     
     public readonly Dictionary<string, string> CommandToModule = new Dictionary<string, string>();
+    public readonly Dictionary<string, int> ModuleToRank = new Dictionary<string, int>();
 
     public string Prefix { get; set; }
 
@@ -60,14 +63,27 @@ public class CommandHandler
         string command = message.Content[2..];
         if (CommandToModule.TryGetValue(command.ToLower(), out var moduleName))
         {
-            // TODO(CALCO): finish this. (Get user form database and check permissions.
-            var user = await _bot.DatabaseClient.Users.Select($"id = {message.Author.Id}").Single();
-            
-            _logger.Debug(user.Rank);
-            
-            // if (moduleName == "AdminModule" )
-            
+            int rank = 0;
+            try
+            {
+                var user = await _bot.DatabaseClient.Users
+                    .Filter("discord_uid", Constants.Operator.Equals, "383567751819558932")
+                    .Single();
+                
+                rank = user.Rank;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error getting user rank.");
+            }
+
             var context = new SocketCommandContext(_bot.Client, message);
+            if (moduleName == "adminmodule" && rank != 2)
+            {
+                await context.Channel.SendMessageAsync("You do not have permission to use this command.");
+                return;
+            }
+            
             var result = await CommandService.ExecuteAsync(context, pos, _serviceProvider);
 
             _logger.Info("Received command: {0}", command);
@@ -94,23 +110,57 @@ public class CommandHandler
         
         _logger.Info("Initialised commands.");
     }
-
+    
     private void BuildCommandsToModules()
     {
-        var assembly = Assembly.GetAssembly(typeof(InfoModule));
+        var assembly = Assembly.GetAssembly(typeof(CommandHandler));
         if (assembly == null) return;
-        
+
+        var moduleBaseType = typeof(ModuleBase<SocketCommandContext>);
         var types = assembly.GetTypes()
-            .Where(type => type.IsClass && type.IsSubclassOf(typeof(ModuleBase<SocketCommandContext>)));
-            
+            .Where(type => type.IsClass && type.IsSubclassOf(moduleBaseType));
+        
+        _logger.Info("Searching for command modules...");
         foreach (var type in types)
         {
+            var fieldInfo = type.GetProperty("MinimumRequiredRank");
+            int minimumRequiredRank = 0;
+            if (fieldInfo == null)
+                _logger.Warn("Could not find rank field in module {0}. Assuming it to be 0 - Default.", type.Name);
+            else
+                minimumRequiredRank = (int)(fieldInfo.GetValue(null) ?? 0);
+            
+            ModuleToRank.Add(type.Name, minimumRequiredRank);
+            _logger.Info("Found module {0} with minimum required rank {1}, and the following commands:.", type.Name, minimumRequiredRank);
+
             foreach (var method in type.GetMethods())
             {
                 if (method.Name == "get_Context")
                     break;
-                    
-                CommandToModule.Add(method.Name.ToLower(), type.Name.ToLower());
+                
+                var attribData = method.GetCustomAttributesData();
+
+                var commandAttribType = typeof(CommandAttribute);
+                var commandDescType = typeof(DescriptionAttribute);
+
+                string commandName = "";
+                string commandDesc = "No description found.";
+                bool shouldLog = false;
+                foreach (var data in attribData)
+                {
+                    if (data.AttributeType == commandAttribType)
+                    {
+                        commandName = (string)data.ConstructorArguments[0].Value!; // Name is a required param. 
+                        CommandToModule.Add(commandName.ToLower(), type.Name.ToLower());
+                        
+                        shouldLog = true;
+                    }
+                    else if (data.AttributeType == commandDescType)
+                        commandDesc = (string)data.ConstructorArguments[0].Value!; // Description is a required param.
+                }
+                
+                if (shouldLog)
+                    _logger.Info("{0}: {1}", commandName, commandDesc);
             }
         }
     }
