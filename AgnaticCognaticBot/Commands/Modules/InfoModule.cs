@@ -6,6 +6,7 @@ using RunMode = Discord.Commands.RunMode;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
+[Summary("Give information about stuff lol.")]
 public class InfoModule : ModuleBase<SocketCommandContext>
 {
     private readonly CommandHandler _commandHandler;
@@ -19,7 +20,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
     [Command("info", RunMode = RunMode.Async)]
     [Alias("help", "commands")]
-    [Description("Displays info about the bot")]
+    [Summary("Displays info about the bot")]
     public async Task Info()
     {
         var embed = new EmbedBuilder();
@@ -36,11 +37,15 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
         embed.AddField("Commands", commandInfos.Count);
 
-        // TODO(calco): Should probably cache this somehow.
-        foreach (var commandInfo in commandInfos)
+        foreach (var module in _commandHandler.CommandService.Modules)
         {
-            embed.AddField(commandInfo.Name, $"{commandInfo.Summary?? "No description provided." }\n" +
-                                             $"Aliases: {string.Join(", ", commandInfo.Aliases)}", true);
+            embed.AddField(module.Name, $"{module.Summary ?? "No description provided"}");
+            
+            foreach (var command in module.Commands)
+            {
+                embed.AddField(command.Name, $"{command.Summary?? "No description provided." }\n" +
+                                             $"Aliases: {string.Join(", ", command.Aliases)}", true);
+            }
         }
 
         embed.WithFooter(x =>
