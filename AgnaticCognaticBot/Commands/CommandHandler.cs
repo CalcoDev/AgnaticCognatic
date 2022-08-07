@@ -61,7 +61,7 @@ public class CommandHandler
         if (!message.HasStringPrefix(Prefix, ref pos, StringComparison.InvariantCultureIgnoreCase))
             return;
          
-        string command = message.Content[2..];
+        string command = message.Content[2..].Split(" ")[0];
         if (CommandToModule.TryGetValue(command.ToLower(), out var moduleName))
         {
             int rank = 0;
@@ -88,7 +88,7 @@ public class CommandHandler
 
             var result = await CommandService.ExecuteAsync(context, pos, _serviceProvider);
 
-            _logger.Info("Received command: {0}", command);
+            _logger.Info("Received command: {0}", message.Content[2..]);
         
             if (!result.IsSuccess)
             {
@@ -105,6 +105,7 @@ public class CommandHandler
     {
         await CommandService.AddModuleAsync<InfoModule>(_serviceProvider);
         await CommandService.AddModuleAsync<AdminModule>(_serviceProvider);
+        await CommandService.AddModuleAsync<FunModule>(_serviceProvider);
 
         BuildCommandsToModules();
 

@@ -11,8 +11,6 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 {
     private readonly CommandHandler _commandHandler;
     
-    private readonly Color _embedColour = new(57, 147, 237);
-
     public InfoModule(Bot bot)
     {
         _commandHandler = bot.CommandHandler;
@@ -24,7 +22,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
     public async Task Info()
     {
         var embed = new EmbedBuilder();
-        embed.WithColor(_embedColour);
+        embed.WithColor(Bot.EmbedColour);
         embed.WithTitle("Agnatic Cognatic Bot");
         embed.WithDescription("A bot for the Agnatic Cognatic Discord server");
         

@@ -11,6 +11,7 @@ namespace AgnaticCognaticBot;
 
 public class Bot
 {
+    public static readonly Color EmbedColour = new(57, 147, 237);
     public const ulong TestGuildId = 1000484275818352660;
     
     public readonly DiscordSocketClient Client;
