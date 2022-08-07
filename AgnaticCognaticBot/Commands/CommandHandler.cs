@@ -143,7 +143,7 @@ public class CommandHandler
                 var attribData = method.GetCustomAttributesData();
 
                 var commandAttribType = typeof(CommandAttribute);
-                var commandDescAttribType = typeof(DescriptionAttribute);
+                var commandDescAttribType = typeof(SummaryAttribute);
                 var aliasAttribType = typeof(AliasAttribute);
 
                 string commandName = "";
