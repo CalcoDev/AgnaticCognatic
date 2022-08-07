@@ -34,6 +34,13 @@ public class FunModule : ModuleBase<SocketCommandContext>
         embed.WithAuthor("Calcopod", Context.User.GetAvatarUrl());
         embed.AddField($"Rolled {x}d{y}: {sum}", rolls.ToString()[..^2]);
 
+        embed.WithCurrentTimestamp();
+        embed.WithFooter(x =>
+        {
+            x.Text = "Agnatic Cognatic Bot";
+            x.IconUrl = "https://i.imgur.com/x2JUBsd.png";
+        });
+        
         await ReplyAsync("", false, embed.Build());
     }
 }
