@@ -6,7 +6,7 @@ using RunMode = Discord.Commands.RunMode;
 
 namespace AgnaticCognaticBot.Commands.Modules;
 
-[Summary("Give information about stuff lol.")]
+[Summary("Commands related to giving information about the bot, Minecraft server and more!")]
 public class InfoModule : ModuleBase<SocketCommandContext>
 {
     private readonly CommandHandler _commandHandler;
@@ -39,7 +39,9 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
         foreach (var module in _commandHandler.CommandService.Modules)
         {
-            embed.AddField(module.Name, $"{module.Summary ?? "No description provided"}");
+            // Dumb way of leaving empty space.
+            embed.AddField("\u200b", "\u200b", false);
+            embed.AddField(module.Name, $"{module.Summary ?? "No description provided"}", false);
             
             foreach (var command in module.Commands)
             {
