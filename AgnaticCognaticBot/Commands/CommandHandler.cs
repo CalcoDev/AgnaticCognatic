@@ -68,14 +68,14 @@ public class CommandHandler
             try
             {
                 var user = await _bot.DatabaseClient.Users
-                    .Filter("discord_uid", Constants.Operator.Equals, "383567751819558932")
+                    .Filter("discord_uid", Constants.Operator.Equals, message.Author.Id.ToString())
                     .Single();
                 
                 rank = user.Rank;
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Error getting user rank.");
+                _logger.Error(e, $"Error getting user rank for user with id: {message.Author.Id}, assuming it to be 0.");
             }
 
             var context = new SocketCommandContext(_bot.Client, message);
